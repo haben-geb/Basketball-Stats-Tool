@@ -2,14 +2,15 @@ import constants
 import copy
 
 
-
+# Initial data before clean_data function is called
 team = {
     'A': {'name': 'Panthers', 'experienced': [], 'inexperienced': []},
     'B': {'name': 'Bandits', 'experienced': [], 'inexperienced': []},
     'C': {'name': 'Warriors', 'experienced': [], 'inexperienced': []}
 }
 
-
+# Cleans data by updating experience and inexperience to booleans
+# And turning height into a two digit integer
 def clean_data():
     players = copy.deepcopy(constants.PLAYERS)
 
@@ -21,44 +22,49 @@ def clean_data():
             player['experience'] = False
     return players
 
-
+# Uses a list containing 3 strings A, B, and C to access each teams data
+# Then balances each teams experienced and inexperienced lists with the appropriate 3 players
+# When a player is added to a list it also will be removed from the players_pool list
+# To insure no team has the same players
 def balance_teams():
-    players = copy.deepcopy(clean_data())
+    players_pool = copy.deepcopy(clean_data())
 
     for data in ['A', 'B', 'C']:
-        for player in players.copy():
+        for player in players_pool.copy():
             if len(team[data]['experienced']) != 3 and player['experience'] == True:
                 team[data]['experienced'].append(player)
-                players.remove(player)
+                players_pool.remove(player)
             elif len(team[data]['inexperienced']) != 3 and player['experience'] == False:
                 team[data]['inexperienced'].append(player)
-                players.remove(player)
+                players_pool.remove(player)
 
 
 
-
+# Prompts user for a team and then combines experienced and inexperienced players
+# Prints a teams stats and calculates its average height for its players
+# Also generates a list of the players guardians after cleaning up the data
 def get_team_stats():
     try:
         data = input('Pick a team: ').upper()
-        players = team[data]['experienced'] + team[data]['inexperienced']
+        total_players = team[data]['experienced'] + team[data]['inexperienced']
     except KeyError:
         print('Invalid input. Please enter only A, B, or C.')
     else:
         print('\nTeam: {} Stats'.format(team[data]['name']))
         print('-' * 20)
-        print('Total players:', len(players))
+        print('Total players:', len(total_players))
         print('Total experience:', len(team[data]['experienced']))
         print('Total inexperience:', len(team[data]['inexperienced']))
 
-        heights = [height['height'] for height in players]
+        heights = [height['height'] for height in total_players]
         average_height = sum(heights) / len(heights)
         print(f'Average height: {average_height:.1f}')
         print('\nPlayers on Team:')
-        player_names = [player['name'] for player in players]
+        player_names = [player['name'] for player in total_players]
         print('', ', '.join(player_names))
 
         guardian_list  = []
-        for player in players:
+        for player in total_players:
             if 'and' in player['guardians']:
                 guardian_list.append(player['guardians'].split(' and '))
             else:
@@ -74,7 +80,8 @@ def get_team_stats():
         print('\nGuardians:')
         print('', ', '.join(guardian_name), '\n')
 
-
+# Calls clean_data and balance_teams functions
+# Prompts user continuously until user enters option B
 def run_app():
     clean_data()
     balance_teams()
